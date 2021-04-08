@@ -26,25 +26,42 @@ app.get("/api/hello", function (req, res) {
 
 
 
-// listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
-});
 
 let newObject = {}
 
 app.get("/api/timestamp/:input", (req,res) => {
+  
   let input = req.params.input
+
+  
 // Test for date string format
-  if (input.includes('-')) {
+
+  if (!input.match(/\d{5,}/)) {
     newObject['unix'] = new Date(input).getTime()
     newObject['utc'] = new Date(input).toUTCString()
   } else {
-    // UTC timestamp
+    // unix key to UTC timestamp
     input = parseInt(input)
 
     newObject['unix'] = new Date(input).getTime() 
     newObject['utc'] = new Date(input).toUTCString()
   }
+  // Input Error Handling
+  if (!newObject['unix'] || !newObject['utc']) {
+    res.json({error: "Invalid Date"})
+  }
+  res.json(newObject)
+  
+})
+
+app.get("/api/timestamp/", (req,res) => {
+  newObject['unix'] = new Date().getTime() 
+  newObject['utc'] = new Date().toUTCString()
+  
   res.json(newObject)
 })
+
+// listen for requests :)
+var listener = app.listen(process.env.PORT, function () {
+  console.log('Your app is listening on port ' + listener.address().port);
+});
